@@ -59,7 +59,7 @@
             color: #ffffff;
             background-color: #001f4d;
             padding: 2%;
-            border-radius: 3%;
+            border-radius: 50px;
         }
 
         .sobre {
@@ -90,3 +90,4 @@
         .col-10-5 {
             width: 85.5%;
         }
+
