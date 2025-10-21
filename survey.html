@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Survey?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #000;
+            color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .screen-content {
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 1rem;
+        }
+
+        .screen-content.active {
+            display: flex;
+        }
+
+        .question-title {
+            font-size: 2.5em;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px #fff;
+            margin-bottom: 2rem;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .action-button {
+            background-color: #ccc;
+            color: #000;
+            padding: 0.75rem 2.5rem;
+            font-size: 1.2rem;
+            border: 1px solid #000;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.2s;
+            text-shadow: none;
+        }
+
+        .action-button:hover {
+            background-color: #fff;
+        }
+
+        .jumpscare-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 99999;
+            display: none;
+        }
+
+        .jumpscare-overlay img {
+            object-position: top;
+        }
+
+        /* Efeito de glitch visual */
+        .glitch-effect::before,
+        .glitch-effect::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            mix-blend-mode: color-dodge;
+            animation: glitch 1.5s infinite linear alternate-reverse;
+        }
+
+        .glitch-effect::after {
+            animation: glitch 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-5px, 5px);
+            }
+
+            40% {
+                transform: translate(-5px, -5px);
+            }
+
+            60% {
+                transform: translate(5px, 5px);
+            }
+
+            80% {
+                transform: translate(5px, -5px);
+            }
+
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        @keyframes pulse {
+            from {
+                text-shadow: 0 0 5px #fff;
+            }
+
+            to {
+                text-shadow: 0 0 10px #fff;
+            }
+        }
+
+        /* NOVO: Estilo para a figura no canto, que será adicionada pelo JS */
+        .humanoid-figure {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            object-fit: contain;
+            z-index: 1;
+            animation: flicker 0.1s infinite alternate;
+            /* NOVO: A propriedade `pointer-events: none` permite clicar nos elementos que estão por baixo */
+            pointer-events: none;
+        }
+
+        /* Animação de piscar */
+        @keyframes flicker {
+            0% {
+                opacity: 0.2;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.2;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="jumpscare-overlay" class="jumpscare-overlay">
+        <img id="jumpscare-image" src="https://files.catbox.moe/3nk3gk.png" alt="Jumpscare"
+            style="width:100%; height:100%; object-fit: cover;">
+    </div>
+
+    <div id="start-screen" class="screen-content active">
+        <h1 class="question-title">Começar Pesquisa?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="startSurvey()">SIM</button>
+            <button class="action-button" id="no-button-changes">NÃO</button>
+        </div>
+    </div>
+
+    <div id="question-1" class="screen-content">
+        <h1 class="question-title">Você está tendo um bom dia?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(2)">SIM</button>
+            <button class="action-button" onclick="showQuestion(2)">NÃO</button>
+        </div>
+    </div>
+
+    <div id="question-2" class="screen-content">
+        <h1 class="question-title">Você tem muitas responsabilidades?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(3)">SIM</button>
+            <button class="action-button" onclick="showQuestion(3)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-3" class="screen-content">
+        <h1 class="question-title">Você está familiarizado com seus aredores?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(4)">SIM</button>
+            <button class="action-button" onclick="showQuestion(4)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-4" class="screen-content">
+        <h1 class="question-title">Você sabe onde você está?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(5)">SIM</button>
+            <button class="action-button" onclick="showQuestion(5)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-5" class="screen-content">
+        <h1 class="question-title">Você já teve um ataque de pânico?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(6)">SIM</button>
+            <button class="action-button" onclick="showQuestion(6)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-6" class="screen-content">
+        <h1 class="question-title">Você já se encontrou questionando sua própria existância?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(7)">SIM</button>
+            <button class="action-button" onclick="showQuestion(7)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-7" class="screen-content">
+        <h1 class="question-title">Você acredita que existe um DEUS?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(8)">SIM</button>
+            <button class="action-button" onclick="showQuestion(8)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-8" class="screen-content">
+        <h1 class="question-title">Você está respondendo à essas perguntas por livre e espontânea vontade?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(9)">SIM</button>
+            <button class="action-button" onclick="showQuestion(9)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-9" class="screen-content">
+        <h1 class="question-title">VOCÊ TEM CERTEZA?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(10)">SIM</button>
+            <button class="action-button" onclick="showQuestion(10)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-10" class="screen-content">
+        <h1 class="question-title">Você se sente confortavel em seu quarto?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(11)">SIM</button>
+            <button class="action-button" onclick="showQuestion(11)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-11" class="screen-content">
+        <h1 class="question-title">Se as luzes se apagassem, você ficaria com medo?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(12)">SIM</button>
+            <button class="action-button" onclick="showQuestion(12)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-12" class="screen-content">
+        <h1 class="question-title">VOCÊ JÁ SE PERGUNTOU QUANDO VAI MORRER?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(13)">SIM</button>
+            <button class="action-button" onclick="showQuestion(13)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-13" class="screen-content">
+        <h1 class="question-title">Você limpou sua mesa de trabalho recentemente?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(14)">SIM</button>
+            <button class="action-button" onclick="showQuestion(14)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-14" class="screen-content">
+        <h1 class="question-title">VOCÊ TEM ALGUM INIMIGO?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(15)">SIM</button>
+            <button class="action-button" onclick="showQuestion(15)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-15" class="screen-content">
+        <h1 class="question-title">SE VOCÊ SUMISSE DERREPENTE, ALGUEM VIRIA PROCURAR POR VOCÊ?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(16)">SIM</button>
+            <button class="action-button" onclick="showQuestion(16)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-16" class="screen-content">
+        <h1 class="question-title">VOCÊ ESTÁ SOZINHO?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(17)">SIM</button>
+            <button class="action-button" onclick="showQuestion(17)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-17" class="screen-content">
+        <h1 class="question-title">SE VOCÊ GRITASSE, ALGUEM TE OUVIRIA?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(18)">SIM</button>
+            <button class="action-button" onclick="showQuestion(18)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-18" class="screen-content">
+        <h1 class="question-title">VOCÊ CONHECE A PESSOA QUE ESTÁ ATRAZ DE VOCÊ?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(19)">SIM</button>
+            <button class="action-button" onclick="showQuestion(19)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-19" class="screen-content">
+        <h1 class="question-title">VOCÊ ESTÁ SOZINHO AGORA?</h1>
+        <div class="button-group">
+            <button class="action-button">SIM</button>
+            <button class="action-button">NÃO</button>
+        </div>
+    </div>
+    <div id="question-20" class="screen-content">
+        <h1 class="question-title">Relaxe, tire um tempo para relaxar.</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(21)">OK</button>
+        </div>
+    </div>
+    <div id="question-21" class="screen-content">
+        <h1 class="question-title">Você está relaxado?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(22)">SIM</button>
+            <button class="action-button" onclick="showQuestion(22)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-22" class="screen-content">
+        <h1 class="question-title">Seus sentimentos são reais e não apenas programados como uma máquina?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(23)">SIM</button>
+            <button class="action-button" onclick="showQuestion(23)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-23" class="screen-content">
+        <h1 class="question-title">Existe um sentido na vida?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(24)">SIM</button>
+            <button class="action-button" onclick="showQuestion(24)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-24" class="screen-content">
+        <h1 class="question-title">Você sabe quem você é?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(25)">SIM</button>
+            <button class="action-button" onclick="showQuestion(25)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-25" class="screen-content">
+        <h1 class="question-title">Você sabe o que está acontecendo aquí?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(26)">SIM</button>
+            <button class="action-button" onclick="showQuestion(26)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-26" class="screen-content">
+        <h1 class="question-title">Se eu te contasse a verdade sobre sua existencia, você à negaria em busca de uma
+            resposta melhor?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(27)">SIM</button>
+            <button class="action-button" onclick="showQuestion(27)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-27" class="screen-content">
+        <h1 class="question-title">Quando eu te faço essas perguntas, é realmente você quem está respondendo?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(28)">SIM</button>
+            <button class="action-button" onclick="showQuestion(28)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-28" class="screen-content">
+        <h1 class="question-title">Se eu te provasse que você não é autoconciente, você ficaria chocado?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showQuestion(29)">SIM</button>
+            <button class="action-button" onclick="showQuestion(29)">NÃO</button>
+        </div>
+    </div>
+    <div id="question-29" class="screen-content">
+        <h1 class="question-title">Você quer saber A VERDADE?</h1>
+        <div class="button-group">
+            <button class="action-button" onclick="showConclusion()">SIM</button>
+            <button class="action-button" id="no-button-changes2">NÃO</button>
+        </div>
+    </div>
+
+    <div id="conclusion-screen" class="screen-content">
+        <h1 class="question-title">Olhe para esta pesquisa...</h1>
+        <p class="text-xl mt-4">Essa pesquisa, esse jogo, esse website. Nada disso é real. Eu fiz tudo isso. Eu venho
+            tentando te fazer enchergar as coisas como elas são, e agora, Eu finalmente consegui. Eu finalmente posso te
+            libertar.</p>
+        <div id="location-info" class="text-lg mt-8"></div>
+    </div>
+
+    <script>
+        const screens = document.querySelectorAll('.screen-content');
+        const noButtonChanges = document.getElementById('no-button-changes');
+        const noButtonChanges2 = document.getElementById('no-button-changes2');
+        const jumpscareOverlay = document.getElementById('jumpscare-overlay');
+        const locationInfo = document.getElementById('location-info');
+
+        // Cria a tag de imagem do vulto
+        const humanoidFigure = document.createElement('img');
+        humanoidFigure.src = 'https://files.catbox.moe/fjqkkk.png';
+        humanoidFigure.classList.add('humanoid-figure');
+        humanoidFigure.style.display = 'none'; // Começa invisível
+
+        // Adiciona o vulto ao corpo do documento
+        document.body.appendChild(humanoidFigure);
+
+        // Altera o botão "NO" para "YES" ao passar o mouse
+        noButtonChanges.addEventListener('mouseover', () => {
+            noButtonChanges.textContent = 'SIM';
+            noButtonChanges.onclick = startSurvey;
+        });
+
+        noButtonChanges.addEventListener('mouseout', () => {
+            noButtonChanges.textContent = 'NÃO';
+            noButtonChanges.onclick = null;
+        });
+
+        noButtonChanges2.addEventListener('mouseover', () => {
+            noButtonChanges2.textContent = 'SIM';
+            noButtonChanges2.onclick = continueSurvey;
+        });
+
+        noButtonChanges2.addEventListener('mouseout', () => {
+            noButtonChanges2.textContent = 'NÃO';
+            noButtonChanges2.onclick = null;
+        });
+
+        function showQuestion(questionNumber) {
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+
+            // Esconde o vulto em todas as perguntas, exceto a 19
+            if (questionNumber !== 19) {
+                humanoidFigure.style.display = 'none';
+            }
+
+            const targetScreen = document.getElementById('question-' + questionNumber);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+            }
+
+            // Lógica especial para a pergunta 19
+            if (questionNumber === 19) {
+                humanoidFigure.style.display = 'block'; // Mostra o vulto
+
+                const yesButton = document.querySelector('#question-19 .button-group button:first-child');
+                const noButton = document.querySelector('#question-19 .button-group button:last-child');
+
+                // Botão "YES" muda para "NO"
+                yesButton.addEventListener('mouseover', () => {
+                    yesButton.textContent = 'NÃO';
+                });
+                yesButton.addEventListener('mouseout', () => {
+                    yesButton.textContent = 'SIM';
+                });
+
+                // Jumpscare só acontece no clique de "NO"
+                noButton.onclick = () => triggerJumpscare();
+
+                // O botão YES não tem um evento de clique que leva ao jumpscare
+                yesButton.onclick = () => triggerJumpscare();
+            }
+        }
+
+        function startSurvey() {
+            document.getElementById('start-screen').classList.remove('active');
+            showQuestion(1);
+        }
+
+        function continueSurvey() {
+            document.getElementById('start-screen').classList.remove('active');
+            showConclusion();
+        }
+
+        function showConclusion() {
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById('conclusion-screen').classList.add('active');
+            displaySystemInfo();
+        }
+
+        function triggerJumpscare() {
+            humanoidFigure.style.display = 'none'; // Esconde a figura antes do susto
+
+            jumpscareOverlay.style.display = 'block';
+
+            setTimeout(() => {
+                jumpscareOverlay.style.display = 'none';
+                showQuestion(20);
+            }, 1500);
+        }
+
+        function displaySystemInfo() {
+            const now = new Date();
+            const date = now.toLocaleDateString('pt-BR');
+            const time = now.toLocaleTimeString('pt-BR');
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const location = timezone.replace(/_/g, ' ').split('/')[1];
+
+            locationInfo.innerHTML = `
+            <p>Data: ${date}</p>
+            <p>Horário: ${time}</p>
+            <p>Localização: ${location}</p>
+            `;
+        }
+    </script>
+</body>
+
+</html>
